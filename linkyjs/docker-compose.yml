@@ -1,0 +1,46 @@
+version: "3"
+
+networks:
+  artnetwork:
+    name: artnetwork
+    external: true
+  proxy:
+    name: proxy
+    external: true
+  linkyjs_network:
+    name: linkyjs_network
+    external: false
+
+services:
+  linkyjs_core:
+    image: arthurdanjou/linkyjs:latest
+    container_name: linkyjs
+    restart: unless-stopped
+    ports:
+      - 1012:1012
+    networks:
+      - artnetwork
+      - proxy
+      - linkyjs_network
+    volumes:
+      - "${PWD}/.env:/usr/src/linkyjs/build/.env:ro"
+    depends_on:
+      - linkyjs_redis
+    labels:
+      - traefik.http.routers.linkyjs.rule=Host(`go.arthurdanjou.fr`)
+      - traefik.http.routers.linkyjs.tls=true
+      - traefik.http.routers.linkyjs.tls.certresolver=lets-encrypt
+      - traefik.docker.network=proxy
+      - traefik.http.services.linkyjs.loadbalancer.server.port=1012
+      - traefik.port=443
+  linkyjs_redis:
+    image: redis:latest
+    container_name: linkyjs_redis
+    restart: unless-stopped
+    command: redis-server
+    ports:
+      - 6373:6379
+    networks:
+      - linkyjs_network
+    volumes:
+      - "${PWD}/data-redis:/data"

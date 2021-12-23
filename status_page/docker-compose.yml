@@ -1,0 +1,29 @@
+version: "3"
+
+networks:
+  proxy:
+    name: proxy
+    external: true
+
+services:
+  status:
+    image: louislam/uptime-kuma
+    container_name: status_page
+    restart: unless-stopped
+    ports:
+      - 3001:3001
+    networks:
+      - proxy
+    volumes:
+      - status_data:/app/data
+    labels:
+      - traefik.http.routers.status.rule=Host(`status.arthurdanjou.fr`)
+      - traefik.http.routers.status.tls=true
+      - traefik.http.routers.status.tls.certresolver=lets-encrypt
+      - traefik.http.services.status.loadbalancer.server.port=3001
+      - traefik.docker.network=proxy
+      - traefik.port=443
+
+volumes:
+  status_data:
+    external: false
