@@ -16,9 +16,12 @@
   storage = "acme.json"
   [certificatesResolvers.lets-encrypt.acme.tlsChallenge]
 
+[log]
+  filePath = "./traefik.log"
+
 [providers.docker]
   watch = true
-  network = "web"
+  network = "proxy"
 
 [providers.file]
   filename = "traefik_dynamic.toml"

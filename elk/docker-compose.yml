@@ -1,0 +1,49 @@
+version: "3"
+
+networks:
+  proxy:
+    name: proxy
+    external: true
+
+services:
+  elasticsearch:
+    image: elasticsearch:7.16.1
+    container_name: elasticsearch
+    restart: unless-stopped
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.name=docker-cluster"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  kibana:
+    image: kibana:7.16.1
+    container_name: kibana
+    restart: unless-stopped
+    labels:
+      - traefik.http.routers.kibana.rule=Host(`kibana.arthurdanjou.fr`)
+      - traefik.http.routers.kibana.tls=true
+      - traefik.http.routers.kibana.tls.certresolver=lets-encrypt
+      - traefik.docker.network=proxy
+      - traefik.port=443
+    ports:
+      - 5601:5601
+    volumes:
+      - "${PWD}/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml"
+    networks:
+      - proxy
+    links:
+      - elasticsearch
+
+  logstash:
+    image: logstash:7.16.1
+    container_name: logstash
+    restart: unless-stopped
+    links:
+      - elasticsearch
+    ports:
+      - 9600:9600
+      - 8089:8089
+    volumes:
+      - "${PWD}/logstash:/usr/share/logstash/pipeline"
+      - "${PWD}/logs/traefik:/var/log/traefik"
