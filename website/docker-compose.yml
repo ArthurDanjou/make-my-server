@@ -28,6 +28,20 @@ services:
       - athena
     volumes:
       - "${PWD}/ares/.env:/usr/src/ares/.env:ro"
+  resume:
+    image: resume:latest
+    container_name: resume
+    restart: unless-stopped
+    labels:
+      - traefik.http.routers.resume.rule=Host(`resume.arthurdanjou.fr`)
+      - traefik.http.routers.resume.tls=true
+      - traefik.http.routers.resume.tls.certresolver=lets-encrypt
+      - traefik.docker.network=proxy
+      - traefik.port=443
+    ports:
+      - 3344:3344
+    networks:
+      - proxy
   athena:
     image: athena:latest
     container_name: athena
