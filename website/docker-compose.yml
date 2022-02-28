@@ -27,7 +27,7 @@ services:
     depends_on:
       - athena
     volumes:
-      - "${PWD}/ares/.env:/usr/src/ares/.env:ro"
+      - "/root/artservices/ares/.env:/usr/src/ares/.env:ro"
   resume:
     image: resume:latest
     container_name: resume
@@ -61,8 +61,8 @@ services:
       - mariadb
       - athena_redis
     volumes:
-      - "${PWD}/athena/.env:/usr/src/athena/build/.env:ro"
-      - "${PWD}/athena/storage:/usr/src/athena/build/storage"
+      - "/root/artservices/athena/.env:/usr/src/athena/build/.env:ro"
+      - "/root/artservices/athena/storage:/usr/src/athena/build/storage"
   mariadb:
     image: mariadb:latest
     container_name: mariadb
@@ -75,7 +75,7 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - "${PWD}/data:/var/lib/mysql"
+      - "/root/mariadb/data:/var/lib/mysql"
   athena_redis:
     image: redis:latest
     container_name: athena_redis
@@ -84,4 +84,4 @@ services:
     networks:
       - artnetwork
     volumes:
-      - "${PWD}/redis:/data"
+      - "/root/artservices/redis:/data"

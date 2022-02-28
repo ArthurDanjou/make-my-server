@@ -4,12 +4,17 @@ networks:
   proxy:
     name: proxy
     external: true
+  elk:
+    name: elk
+    external: false
 
 services:
   elasticsearch:
     image: elasticsearch:7.16.1
     container_name: elasticsearch
     restart: unless-stopped
+    networks:
+      - elk
     environment:
       - "discovery.type=single-node"
       - "cluster.name=docker-cluster"
@@ -33,6 +38,7 @@ services:
       - "${PWD}/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml"
     networks:
       - proxy
+      - elk
     links:
       - elasticsearch
 
@@ -42,6 +48,8 @@ services:
     restart: unless-stopped
     links:
       - elasticsearch
+    networks:
+      - elk
     ports:
       - 9600:9600
       - 8089:8089
