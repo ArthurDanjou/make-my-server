@@ -1,0 +1,42 @@
+entryPoints:
+  web:
+    address: ':80'
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ':443'
+
+api:
+  dashboard: true
+
+certificatesResolvers:
+  lets-encrypt:
+    acme:
+      email: arthurdanjou@outlook.fr
+      storage: acme.json
+      tlsChallenge: {}
+
+accessLog:
+  filePath: "access.log"
+
+log:
+  filePath: traefik.log""
+
+providers:
+  docker:
+    watch: true
+    network: web
+  file:
+    filename: traefik_dynamic.yaml
+
+pilot:
+  token: a2ee1c73-3d14-48da-ac9b-93fe254b9ae6
+
+experimental:
+  plugins:
+    traefik-real-ip:
+      modulename: github.com/soulbalz/traefik-real-ip
+      version: v1.0.3

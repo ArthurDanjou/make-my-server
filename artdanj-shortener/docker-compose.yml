@@ -1,8 +1,8 @@
 version: "3"
 
 networks:
-  artnetwork:
-    name: artnetwork
+  mariadb:
+    name: mariadb
     external: true
   proxy:
     name: proxy
@@ -19,11 +19,11 @@ services:
     ports:
       - 1012:1012
     networks:
-      - artnetwork
+      - mariadb
       - proxy
       - linkyjs_network
     volumes:
-      - "${PWD}/.env:/usr/src/linkyjs/build/.env:ro"
+      - "/root/linkyjs/.env:/usr/src/linkyjs/build/.env:ro"
     depends_on:
       - linkyjs_redis
     labels:
@@ -43,4 +43,4 @@ services:
     networks:
       - linkyjs_network
     volumes:
-      - "${PWD}/data-redis:/data"
+      - "/root/linkyjs/redis:/data"

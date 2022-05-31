@@ -1,0 +1,21 @@
+version: "3"
+
+networks:
+  mariadb:
+    name: mariadb
+    external: false
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=change-me
+      - TZ=EUROPE/PARIS
+    networks:
+      - mariadb
+    ports:
+      - 3306:3306
+    volumes:
+      - "/root/mariadb/data:/var/lib/mysql"

@@ -3,23 +3,48 @@ version: "3"
 networks:
   proxy:
     name: proxy
-    external: true
+    external: false
 
 services:
+  artdanj-fallback:
+    image: arthurdanjou/fallback:latest
+    container_name: artdanj-fallback
+    restart: always
+    labels:
+      - traefik.http.middlewares.fallback-error.errors.status=400-499
+      - traefik.http.middlewares.fallback-error.errors.service=artdanj-fallback-proxy@docker
+      - traefik.http.middlewares.fallback-error.errors.query=/
+      - traefik.http.middlewares.fallback-maintenance.errors.status=500-599
+      - traefik.http.middlewares.fallback-maintenance.errors.service=artdanj-fallback-proxy@docker
+      - traefik.http.middlewares.fallback-maintenance.errors.query=/maintenance
+      - traefik.http.routers.fallback.rule=HostRegexp(`{host:.+}`)
+      - traefik.http.routers.fallback.middlewares=fallback-error@docker,fallback-maintenance@docker
+      - traefik.http.routers.fallback.priority=1
+      - traefik.http.routers.fallback.tls=true
+      - traefik.http.routers.fallback.tls.certresolver=lets-encrypt
+      - traefik.docker.network=proxy
+      - traefik.port=443
+    ports:
+      - 3355:3355
+    networks:
+      - proxy
   traefik:
     image: traefik:latest
-    container_name: atlas
-    restart: unless-stopped
+    container_name: proxy
+    restart: always
+    depends_on:
+      - artdanj-fallback
+    networks:
+      - proxy
     ports:
       - 80:80
       - 443:443
-    networks:
-      - proxy
     volumes:
-      - "${PWD}/traefik.log:/traefik.log"
+      - "/root/proxy/traefik.log:/traefik.log"
+      - "/root/proxy/access.log:/access.log"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "${PWD}/traefik.toml:/traefik.toml"
-      - "${PWD}/traefik_dynamic.toml:/traefik_dynamic.toml"
-      - "${PWD}/acme.json:/acme.json"
-      - "${PWD}/ssl/cert.pem:/etc/ssl/certs/cert.pem"
-      - "${PWD}/ssl/key.pem:/etc/ssl/private/key.pem"
+      - "/root/proxy/traefik.yaml:/traefik.yaml"
+      - "/root/proxy/traefik_dynamic.yaml:/traefik_dynamic.yaml"
+      - "/root/proxy/acme.json:/acme.json"
+      - "/root/proxy/ssl/cert.pem:/etc/ssl/certs/cert.pem"
+      - "/root/proxy/ssl/key.pem:/etc/ssl/private/key.pem"
