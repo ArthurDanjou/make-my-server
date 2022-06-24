@@ -1,0 +1,13 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-fallback-errors
+  namespace: traefik
+spec:
+  errors:
+    query: /
+    status:
+      - "400-499"
+    service:
+      name: fallback
+      port: 3355

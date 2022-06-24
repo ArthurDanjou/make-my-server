@@ -1,0 +1,13 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-fallback-maintenance
+  namespace: traefik
+spec:
+  errors:
+    query: /maintenance
+    status:
+      - "500-599"
+    service:
+      name: fallback
+      port: 3355

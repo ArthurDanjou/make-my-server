@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fallback
+  namespace: traefik
+  labels:
+    app: fallback
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3355
+      targetPort: 3355
+      name: http
+  selector:
+    app: fallback

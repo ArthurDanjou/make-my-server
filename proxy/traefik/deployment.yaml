@@ -1,0 +1,50 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: traefik
+  namespace: traefik
+  labels:
+    app: traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      serviceAccountName: traefik-ingress-controller
+
+      volumes:
+        - name: traefik-conf
+          configMap:
+            name: traefik-conf
+        - name: traefik-le
+          hostPath:
+            path: /root/proxy/traefik/certs
+            type: Directory
+
+      containers:
+        - name: traefik
+          image: traefik:v2.7.1
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /etc/traefik
+              name: traefik-conf
+            - mountPath: "/certs/"
+              name: traefik-le
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8083
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          ports:
+            - name: websecure
+              containerPort: 443
+            - name: metrics
+              containerPort: 8082
+            - name: ping
+              containerPort: 8083
