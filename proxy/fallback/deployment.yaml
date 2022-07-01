@@ -5,7 +5,6 @@ metadata:
   namespace: traefik
   labels:
     app: fallback
-
 spec:
   replicas: 1
   selector:

@@ -6,6 +6,13 @@ metadata:
   labels:
     app: traefik
 data:
+  file.yml: |
+    tls:
+      stores:
+        default:
+          defaultCertificate:
+            - certFile: etc/traefik/ssl/cert.pem
+            keyFile: etc/traefik/ssl/key.pem
   traefik.yml: |
     entryPoints:
       web:
@@ -34,7 +41,7 @@ data:
 
     log:
       filePath: "traefik.log"
-      level: DEBUG
+      level: INFO
 
     metrics:
       prometheus:
@@ -53,14 +60,6 @@ data:
     
     serversTransport:
       insecureSkipVerify: true
-    
-    certificatesResolvers:
-      lets-encrypt:
-        acme:
-          caServer: https://acme-staging-v02.api.letsencrypt.org/directory
-          email: "arthurdanjou@outlook.fr"
-          storage: "/certs/acme.json"
-          tlsChallenge: {}
 
     experimental:
       plugins:

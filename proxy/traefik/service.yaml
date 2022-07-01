@@ -13,6 +13,10 @@ spec:
       name: websecure
       targetPort: 443
     - protocol: TCP
+      port: 8080
+      name: admin
+      targetPort: 8080
+    - protocol: TCP
       port: 8082
       name: metrics
       targetPort: 8082
