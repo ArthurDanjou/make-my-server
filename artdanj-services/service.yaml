@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: artdanj-services
+  namespace: artdanj-services
+spec:
+  selector:
+    app: artdanj-services
+  type: LoadBalancer
+  ports:
+    - port: 3333
+      name: website
+      targetPort: 3333
+      protocol: TCP
+    - port: 5555
+      name: api
+      targetPort: 5555
+      protocol: TCP
+    - port: 3344
+      name: resume
+      targetPort: 3344
+      protocol: TCP
+    - port: 6379
+      name: redis
+      targetPort: 6379
+      protocol: TCP

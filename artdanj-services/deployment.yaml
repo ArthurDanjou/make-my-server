@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artdanj-services
+  namespace: artdanj-services
+  labels:
+    app: artdanj-services
+spec:
+  selector:
+    matchLabels:
+      app: artdanj-services
+  template:
+    metadata:
+        labels:
+            app: artdanj-services
+    spec:
+      containers:
+        - name: api-redis
+          image: redis:latest
+          imagePullPolicy: Always
+          command:
+            - redis-server
+          volumeMounts:
+            - mountPath: /data
+              name: redis-data
+        - name: artdanj-api
+          image: arthurdanjou/api:latest
+          imagePullPolicy: Always
+          ports:
+            - name: api
+              protocol: TCP
+              containerPort: 5555
+          volumeMounts:
+            - mountPath: /usr/src/api/build/storage
+              name: api-storage
+            - mountPath: /usr/src/api/build/
+              name: api-env
+        - name: artdanj-website
+          image: arthurdanjou/website:latest
+          imagePullPolicy: Always
+          ports:
+            - name: website
+              protocol: TCP
+              containerPort: 3333
+          volumeMounts:
+            - mountPath: /usr/src/website/
+              name: website-env
+        - name: artdanj-resume
+          image: arthurdanjou/resume:latest
+          imagePullPolicy: Always
+          ports:
+            - name: resume
+              protocol: TCP
+              containerPort: 3344
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pv-claim
+        - name: api-storage
+          persistentVolumeClaim:
+            claimName: api-storage-pv-claim
+        - name: api-env
+          secret:
+            secretName: api-env
+        - name: website-env
+          secret:
+            secretName: website-env

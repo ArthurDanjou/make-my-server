@@ -1,0 +1,53 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: artdanj-services-website
+  namespace: artdanj-services
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`arthurdanjou.fr`)
+      kind: Rule
+      services:
+        - name: artdanj-services
+          port: 3333
+  tls:
+    store:
+      name: default
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: artdanj-services-api
+  namespace: artdanj-services
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`api.arthurdanjou.fr`)
+      kind: Rule
+      services:
+        - name: artdanj-services
+          port: 5555
+  tls:
+    store:
+      name: default
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: artdanj-services-resume
+  namespace: artdanj-services
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`resume.arthurdanjou.fr`)
+      kind: Rule
+      services:
+        - name: artdanj-services
+          port: 3344
+  tls:
+    store:
+      name: default
