@@ -9,5 +9,8 @@ spec:
   clusterIP: None # Headless
   ports:
     - port: 3306
+      name: mariadb
+      targetPort: 3306
+      protocol: TCP
   selector:
     app: mariadb

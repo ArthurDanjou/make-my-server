@@ -19,35 +19,33 @@ spec:
     spec:
       containers:
         - name: mariadb
-          image: mariadb
+          image: mariadb:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 3306
+            - name: mariadb
+              containerPort: 3306
+              protocol: TCP
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mariadbinfos
+                  name: mariadb-secrets
                   key: MYSQL_ROOT_PASSWORD
-            - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mariadbinfos
-                  key: MYSQL_PASSWORD
-            - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: mariadbinfos
-                  key: MYSQL_USER
             - name: TZ
               valueFrom:
                 secretKeyRef:
-                  name: mariadbinfos
+                  name: mariadb-secrets
                   key: TZ
           volumeMounts:
             - name: mariadb-data
               mountPath: /var/lib/mysql
-      volumes:
-        - name: mariadb-data
-          persistentVolumeClaim:
-            claimName: mariadb-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: mariadb-data
+      spec:
+        storageClassName: local-path
+        volumeName: mariadb-pv
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 5Gi
