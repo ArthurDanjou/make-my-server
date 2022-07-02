@@ -21,7 +21,7 @@ spec:
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: traefik-default
+  name: traefik-fallback
   namespace: traefik
 spec:
   entryPoints:
@@ -30,8 +30,8 @@ spec:
     - match: HostRegexp(`{host:.+}`)
       kind: Rule
       services:
-        - name: noop@internal
-          kind: TraefikService
+        - name: fallback
+          port: 3355
       middlewares:
         - name: traefik-fallback-maintenance@kubernetescrd
         - name: traefik-fallback-errors@kubernetescrd
