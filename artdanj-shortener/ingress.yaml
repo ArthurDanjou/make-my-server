@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: artdanj-shortener
+  namespace: artdanj-shortener
+  labels:
+    app: artdanj-shortener
+spec:
+  entryPoints:
+  - websecure
+  routes:
+    - match: Host(`go.arthurdanjou.fr`)
+      kind: Rule
+      services:
+        - name: artdanj-shortener
+          port: 1012
+  tls:
+    store:
+      name: default

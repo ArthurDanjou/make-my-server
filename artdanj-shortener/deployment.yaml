@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artdanj-shortener
+  namespace: artdanj-shortener
+  labels:
+    app: artdanj-shortener
+spec:
+  selector:
+    matchLabels:
+      app: artdanj-shortener
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: artdanj-shortener
+    spec:
+      containers:
+        - name: shortener-redis
+          image: redis:latest
+          imagePullPolicy: Always
+          command:
+            - redis-server
+            - "/conf/redis.conf"
+          volumeMounts:
+            - mountPath: /conf
+              name: redis-conf
+            - mountPath: /data
+              name: redis-data
+        - name: shortener
+          image: arthurdanjou/shortener:latest
+          imagePullPolicy: Always
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          ports:
+            - name: shortener
+              protocol: TCP
+              containerPort: 1012
+          volumeMounts:
+            - mountPath: /usr/src/shortener/build/.env
+              readOnly: true
+              subPath: .env
+              name: shortener-env
+      volumes:
+        - name: redis-conf
+          configMap:
+            name: redis-conf
+            items:
+              - key: redis.conf
+                path: redis.conf
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-shortener-pv-claim
+        - name: shortener-env
+          secret:
+            secretName: shortener-env
