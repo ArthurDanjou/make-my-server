@@ -6,7 +6,7 @@ ArtDanjProduction Services
 
 **Steps**:
 0. Namespace
-1. Secrets
+1. Secrets & configmap
 2. Service
 3. Volumes
 4. Deployment

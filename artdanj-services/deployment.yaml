@@ -9,6 +9,11 @@ spec:
   selector:
     matchLabels:
       app: artdanj-services
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
   template:
     metadata:
         labels:
@@ -20,12 +25,20 @@ spec:
           imagePullPolicy: Always
           command:
             - redis-server
+            - "/conf/redis.conf"
           volumeMounts:
+            - mountPath: /conf
+              name: redis-conf
             - mountPath: /data
               name: redis-data
         - name: artdanj-api
           image: arthurdanjou/api:latest
           imagePullPolicy: Always
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 10
           ports:
             - name: api
               protocol: TCP
@@ -33,7 +46,9 @@ spec:
           volumeMounts:
             - mountPath: /usr/src/api/build/storage
               name: api-storage
-            - mountPath: /usr/src/api/build/
+            - mountPath: /usr/src/api/build/.env
+              readOnly: true
+              subPath: .env
               name: api-env
         - name: artdanj-website
           image: arthurdanjou/website:latest
@@ -43,7 +58,9 @@ spec:
               protocol: TCP
               containerPort: 3333
           volumeMounts:
-            - mountPath: /usr/src/website/
+            - mountPath: /usr/src/website/.env
+              subPath: .env
+              readOnly: true
               name: website-env
         - name: artdanj-resume
           image: arthurdanjou/resume:latest
@@ -56,6 +73,12 @@ spec:
         - name: redis-data
           persistentVolumeClaim:
             claimName: redis-pv-claim
+        - name: redis-conf
+          configMap:
+            name: redis-conf
+            items:
+              - key: redis.conf
+                path: redis.conf
         - name: api-storage
           persistentVolumeClaim:
             claimName: api-storage-pv-claim
