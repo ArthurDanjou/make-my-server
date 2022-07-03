@@ -72,7 +72,7 @@ spec:
       volumes:
         - name: redis-data
           persistentVolumeClaim:
-            claimName: redis-pv-claim
+            claimName: redis-api-pv-claim
         - name: redis-conf
           configMap:
             name: redis-conf

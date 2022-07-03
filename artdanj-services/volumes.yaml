@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: redis-pv
+  name: redis-api-pv
   namespace: artdanj-services
 spec:
   storageClassName: local-path
@@ -11,17 +11,17 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /etc/redis
+    path: /etc/redis/api
     type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-    name: redis-pv-claim
+    name: redis-api-pv-claim
     namespace: artdanj-services
 spec:
   storageClassName: local-path
-  volumeName: redis-pv
+  volumeName: redis-api-pv
   accessModes:
     - ReadWriteOnce
   resources:
