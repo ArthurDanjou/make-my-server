@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artdanj-services
+  namespace: artdanj-services
+  labels:
+    app: artdanj-services
+spec:
+  selector:
+    matchLabels:
+      app: artdanj-services
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+  template:
+    metadata:
+        labels:
+            app: artdanj-services
+    spec:
+      containers:
+        - name: api-redis
+          image: redis:latest
+          imagePullPolicy: Always
+          command:
+            - redis-server
+            - "/conf/redis.conf"
+          volumeMounts:
+            - mountPath: /conf
+              name: redis-conf
+            - mountPath: /data
+              name: redis-data
+        - name: artdanj-api
+          image: arthurdanjou/api:latest
+          imagePullPolicy: Always
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          ports:
+            - name: api
+              protocol: TCP
+              containerPort: 5555
+          volumeMounts:
+            - mountPath: /usr/src/api/build/storage
+              name: api-storage
+            - mountPath: /usr/src/api/build/.env
+              readOnly: true
+              subPath: .env
+              name: api-env
+        - name: artdanj-website
+          image: arthurdanjou/website:latest
+          imagePullPolicy: Always
+          ports:
+            - name: website
+              protocol: TCP
+              containerPort: 3333
+          volumeMounts:
+            - mountPath: /usr/src/website/.env
+              subPath: .env
+              readOnly: true
+              name: website-env
+        - name: artdanj-resume
+          image: arthurdanjou/resume:latest
+          imagePullPolicy: Always
+          ports:
+            - name: resume
+              protocol: TCP
+              containerPort: 3344
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-api-pv-claim
+        - name: redis-conf
+          configMap:
+            name: redis-conf
+            items:
+              - key: redis.conf
+                path: redis.conf
+        - name: api-storage
+          persistentVolumeClaim:
+            claimName: api-storage-pv-claim
+        - name: api-env
+          secret:
+            secretName: api-env
+        - name: website-env
+          secret:
+            secretName: website-env
