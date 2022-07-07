@@ -10,8 +10,8 @@ spec:
   - match: Host(`proxy.arthurdanjou.fr`)
     kind: Rule
     services:
-    - name: traefik
-      port: 8080
+    - name: api@internal
+      kind: TraefikService
     middlewares:
     - name: basic-auth
   tls:
