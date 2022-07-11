@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`arthurdanjou.fr`)
+    - match: Host(`arthurdanjou.fr`) || Host(`www.arthurdanjou.fr`)
       kind: Rule
       services:
         - name: artdanj-services
