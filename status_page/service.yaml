@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: status-page
+  namespace: status-page
+  labels:
+    app: status-page
+spec:
+  selector:
+    app: status-page
+  type: LoadBalancer
+  ports:
+    - port: 3001
+      name: status-page
+      targetPort: 3001
+      protocol: TCP
