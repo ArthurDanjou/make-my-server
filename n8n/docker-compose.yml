@@ -1,0 +1,39 @@
+services:
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.arthurdanjou.fr`)"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.routers.n8n.tls.certresolver=cloudflare"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    networks:
+      - traefik_network
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=xxx
+      - N8N_BASIC_AUTH_PASSWORD=xxx
+      - N8N_HOST=n8n.arthurdanjou.fr
+      - N8N_PORT=5678
+      - NODE_ENV=production
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=data_postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=xxx
+      - DB_POSTGRESDB_USER=xxx
+      - DB_POSTGRESDB_PASSWORD=xxx
+      - GENERIC_TIMEZONE="Europe/Paris"
+      - TZ="Europe/Paris"
+    volumes:
+      - n8n_data:/root/.n8n
+
+volumes:
+  n8n_data:
+    driver: local
+
+networks:
+  traefik_network:
+    external: true

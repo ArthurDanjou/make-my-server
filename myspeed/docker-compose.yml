@@ -1,0 +1,22 @@
+services:
+  myspeed:
+    image: germannewsmaker/myspeed
+    container_name: myspeed
+    volumes:
+      - myspeed:/myspeed/data
+    restart: always
+    networks:
+      - traefik_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.myspeed.rule=Host(`speed.arthurdanjou.fr`)"
+      - "traefik.http.routers.myspeed.entrypoints=websecure"
+      - "traefik.http.services.myspeed.loadbalancer.server.port=5216"
+      - "traefik.http.routers.myspeed.tls.certresolver=cloudflare"
+
+volumes:
+  myspeed:
+
+networks:
+  traefik_network:
+    external: true

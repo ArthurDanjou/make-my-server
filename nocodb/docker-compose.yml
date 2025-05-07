@@ -1,0 +1,27 @@
+services:
+  nocodb:
+    image: nocodb/nocodb:latest
+    container_name: nocodb
+    restart: always
+    environment:
+      - NC_DB=pg://data_postgres:5432?u=xxx&p=xxx&d=xxx
+      - NC_PUBLIC_URL=https://noco.arthurdanjou.fr
+      - NC_DISABLE_TELE=true
+      - NC_REDIS_URL=redis://data_redis:6379/4
+    volumes:
+      - nocodb-data:/usr/app/data
+    networks:
+      - traefik_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.noco.rule=Host(`noco.arthurdanjou.fr`)"
+      - "traefik.http.routers.noco.entrypoints=websecure"
+      - "traefik.http.services.noco.loadbalancer.server.port=8080"
+      - "traefik.http.routers.noco.tls.certresolver=cloudflare"
+
+networks:
+  traefik_network:
+    external: true
+
+volumes:
+  nocodb-data:

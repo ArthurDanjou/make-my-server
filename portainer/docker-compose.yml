@@ -1,0 +1,34 @@
+services:
+  agent:
+    image: portainer/agent:2.27.5
+    container_name: portainer_agent
+    restart: unless-stopped
+    ports:
+      - "9111:9001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - /:/host
+  portainer:
+    image: portainer/portainer-ce:2.27.5
+    container_name: portainer
+    restart: unless-stopped
+    command: -H tcp://tasks.agent:9111 --tlsskipverify
+    volumes:
+      - portainer_portainer_data:/data
+    networks:
+      - traefik_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.arthurdanjou.fr`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.tls.certresolver=cloudflare"
+
+networks:
+  traefik_network:
+    external: true
+
+volumes:
+  portainer_portainer_data:
+    external: true

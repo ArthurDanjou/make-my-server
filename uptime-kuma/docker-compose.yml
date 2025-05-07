@@ -1,0 +1,18 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: status_uptime-kuma
+    restart: unless-stopped
+    networks:
+      - traefik_network
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - UPTIME_KUMA_CLOUDFLARED_TOKEN=xxx
+    ports:
+      - 3001:3001
+
+networks:
+  traefik_network:
+    external: true

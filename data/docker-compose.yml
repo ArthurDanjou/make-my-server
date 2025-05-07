@@ -1,0 +1,43 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: data_redis
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.redis.rule=HostSNI(`data.arthurdanjou.fr`)"
+      - "traefik.tcp.routers.redis.entrypoints=redis"
+      - "traefik.tcp.services.redis.loadbalancer.server.port=6379"
+      - "traefik.tcp.routers.redis.tls.certresolver=cloudflare"
+    volumes:
+      - data_redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - traefik_network
+
+  postgres:
+    image: postgres:17
+    container_name: data_postgres
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.postgres.rule=HostSNI(`data.arthurdanjou.fr`)"
+      - "traefik.tcp.routers.postgres.entrypoints=postgres"
+      - "traefik.tcp.routers.postgres.tls.certresolver=cloudflare"
+      - "traefik.tcp.services.postgres.loadbalancer.server.port=5432"
+    environment:
+      POSTGRES_USER: xxx
+      POSTGRES_PASSWORD: xxx
+      POSTGRES_DB: xxx
+    volumes:
+      - data_postgres_data:/var/lib/postgresql/data
+    networks:
+      - traefik_network
+
+volumes:
+  data_redis_data:
+  data_postgres_data:
+
+networks:
+  traefik_network:
+    external: true
